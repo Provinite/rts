@@ -6,11 +6,12 @@ public class ArrowBehavior : MonoBehaviour {
   public ArrowPool ArrowPool;
   public Spline TraversalSpline {
     set {
-      TraversalSpline = value;
+      _traversalSpline = value;
       _splineLength = value.GetLength();
     }
-    get => TraversalSpline;
+    get => _traversalSpline;
   }
+  private Spline _traversalSpline;
   private float _splineLength;
 
   public GameObject Target;
