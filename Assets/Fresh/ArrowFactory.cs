@@ -2,8 +2,10 @@ using System;
 using UnityEngine;
 using UnityEngine.Splines;
 
-public static class ArrowFactory {
-  public static GameObject Spawn(GameObject assailant, GameObject victim) {
+public static class ArrowFactory
+{
+  public static GameObject Spawn(GameObject assailant, GameObject victim)
+  {
     // ArrowBehavior cleans up arrows when they arrive.
     // This will change later, but whatever
     var arrowObject = Globals.ArrowPool.Scoop();
@@ -19,7 +21,8 @@ public static class ArrowFactory {
     return arrowObject;
   }
 
-  public static Spline GetFiringArc(GameObject assailant, GameObject victim) {
+  public static Spline GetFiringArc(GameObject assailant, GameObject victim)
+  {
     var origin = assailant.transform.position;
     origin.y += 1;
     var destination = victim.transform.position;

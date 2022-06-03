@@ -66,7 +66,7 @@ Material:
     - _Glossiness: 0.808
     - _GlossyReflections: 1
     - _Health: 0.3
-    - _Height: 0.005
+    - _Height: 0.0025
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
@@ -75,7 +75,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
-    - _Width: 0.016
+    - _Width: 0.008
     - _ZWrite: 1
     m_Colors:
     - _BgColor: {r: 1, g: 0, b: 0, a: 1}

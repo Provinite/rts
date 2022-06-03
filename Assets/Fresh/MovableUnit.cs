@@ -2,7 +2,8 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class MovableUnit : MonoBehaviour {
+public class MovableUnit : MonoBehaviour
+{
   private Projector _projector;
   private GameObject _target;
   private float lastAttackTime = -1f;
@@ -13,58 +14,93 @@ public class MovableUnit : MonoBehaviour {
   [HideInInspector]
   public int MaxHealth = 100;
 
-  public float HealthPercent {
+  public float HealthPercent
+  {
     get => (float)Health / (float)MaxHealth;
   }
-  void Start() {
-    foreach (Transform childTransform in transform) {
-      if (childTransform.CompareTag("SelectionProjector")) {
+
+  void Start()
+  {
+    foreach (Transform childTransform in transform)
+    {
+      if (childTransform.CompareTag("SelectionProjector"))
+      {
         _projector = childTransform.GetComponent<Projector>();
       }
     }
   }
 
-  public void TakeDamage(int damage) {
+  /// <summary>
+  /// Deal damage to this unit, potentially killing it.
+  /// </summary>
+  /// <param name="damage"></param>
+  public void TakeDamage(int damage)
+  {
     Health -= damage;
-    if (Health < 0) {
+    if (Health < 0)
+    {
       GameObject.Destroy(gameObject);
     }
   }
 
-  public bool SelectionEnabled {
+  /// <summary>
+  /// Indicates whether visual effects are enabled for this unit
+  /// </summary>
+  public bool SelectionEnabled
+  {
     get => _projector.enabled;
     set => _projector.enabled = value;
   }
 
-  private NavMeshAgent _navMeshAgent {
-    get => gameObject.GetComponent<NavMeshAgent>();
+  private NavMeshAgent _navMeshAgent
+  {
+    get => GetComponent<NavMeshAgent>();
   }
 
-  public void MoveTo(Vector3 destination) {
+  /// <summary>
+  /// Update this unit's destination to the provided coordinates
+  /// </summary>
+  /// <param name="destination"></param>
+  public void MoveTo(Vector3 destination)
+  {
     _navMeshAgent.SetDestination(destination);
   }
 
-  void Update() {
+  void Update()
+  {
     var range = 10f;
     var cooldown = 0.6f;
-    if (lastAttackTime > 0) {
-      if (Time.time - lastAttackTime < cooldown) {
+    if (lastAttackTime > 0)
+    {
+      if (Time.time - lastAttackTime < cooldown)
+      {
         return;
       }
     }
-    var colliders = Physics.OverlapSphere(transform.position, range, Physics.AllLayers & ~Globals.TERRAIN_LAYER_MASK & ~Globals.PROJECTILE_LAYER_MASK & ~Globals.CAMERA_FRUSTUM_COLLIDER_LAYER_MASK);
-    foreach (var collider in colliders) {
-      if (collider.attachedRigidbody != null) {
+    var colliders = Physics.OverlapSphere(
+      transform.position,
+      range,
+      Physics.AllLayers
+        & ~Globals.TERRAIN_LAYER_MASK
+        & ~Globals.PROJECTILE_LAYER_MASK
+        & ~Globals.CAMERA_FRUSTUM_COLLIDER_LAYER_MASK
+    );
+    foreach (var collider in colliders)
+    {
+      if (collider.attachedRigidbody != null)
+      {
         var targetGameObject = collider.attachedRigidbody.gameObject;
-        if (targetGameObject == gameObject) {
+        if (targetGameObject == gameObject)
+        {
           continue;
         }
-        if (targetGameObject == null) {
+        if (targetGameObject == null)
+        {
           continue;
         }
         var movableUnit = targetGameObject.GetComponent<MovableUnit>();
-        if (movableUnit) {
-
+        if (movableUnit)
+        {
           ArrowFactory.Spawn(gameObject, targetGameObject);
           lastAttackTime = Time.time;
           break;
@@ -72,5 +108,4 @@ public class MovableUnit : MonoBehaviour {
       }
     }
   }
-
 }

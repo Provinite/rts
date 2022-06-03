@@ -1,9 +1,16 @@
 using UnityEngine;
-public static class GuiUtils {
-  public static (Vector2 topLeft, Vector2 bottomRight) Square(Vector2 cornerA, Vector2 cornerB, int thickness, GUIStyle gUIStyle) {
+
+public static class GuiUtils
+{
+  public static (Vector2 topLeft, Vector2 bottomRight) Square(
+    Vector2 cornerA,
+    Vector2 cornerB,
+    int thickness,
+    GUIStyle gUIStyle
+  )
+  {
     var top = Mathf.Min(cornerA.y, cornerB.y);
     var bottom = Mathf.Max(cornerA.y, cornerB.y);
-
 
     var left = Mathf.Min(cornerA.x, cornerB.x);
     var right = Mathf.Max(cornerA.x, cornerB.x);

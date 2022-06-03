@@ -15,21 +15,12 @@ using UnityEngine;
 ///   </item>
 /// </list>
 /// </summary>
-public class OrderHandler : MonoBehaviour {
-  /// <summary>
-  /// Start dragging after this many seconds of holding the mouse button.
-  /// </summary>
-  /// <remarks>
-  /// Works in an OR fashion with  <see cref="DraggingDistance" />
-  /// </remarks>
-  public float DraggingDelay = 0.05f;
+public class OrderHandler : MonoBehaviour
+{
   /// <summary>
   /// Start dragging after moving this far from the original position while
   /// holding the mouse button.
   /// </summary>
-  /// <remarks>
-  /// Works in an OR fashion with <see cref="DraggingDelay" />
-  /// </remarks>
   public float DraggingDistance = 5;
 
   /// <summary>
@@ -78,14 +69,14 @@ public class OrderHandler : MonoBehaviour {
   /// </summary>
   private Vector2 _bottomRight;
 
-
   /// <summary>
   /// Set up the order handler before the first frame
   /// </summary>
   /// <remarks>
   /// Initializes textures and GUI styles needed for box selection.
   /// </remarks>
-  void Start() {
+  void Start()
+  {
     var selectionBoxTexture = new Texture2D(1, 1);
     selectionBoxTexture.SetPixel(0, 0, Color.green);
     selectionBoxTexture.Apply();
@@ -98,7 +89,8 @@ public class OrderHandler : MonoBehaviour {
   /// </summary>
   /// <param name="screenPosition">Screen-space coordinates to convert</param>
   /// <returns>The same coordinates in GUI-space</returns>
-  private Vector2 _screenPosToGuiPos(Vector3 screenPosition) {
+  private Vector2 _screenPosToGuiPos(Vector3 screenPosition)
+  {
     return new Vector2(screenPosition.x, Screen.height - screenPosition.y);
   }
 
@@ -107,7 +99,8 @@ public class OrderHandler : MonoBehaviour {
   /// </summary>
   /// <param name="guiPosition">GUI-space position</param>
   /// <returns>The same coordinates in screen-space</returns>
-  private Vector2 _guiPosToScreenPos(Vector2 guiPosition) {
+  private Vector2 _guiPosToScreenPos(Vector2 guiPosition)
+  {
     return new Vector2(guiPosition.x, Screen.height - guiPosition.y);
   }
 
@@ -127,11 +120,15 @@ public class OrderHandler : MonoBehaviour {
   /// terrain aligned with <c>screenPosition</c>.
   /// </para>
   /// </returns>
-  private (bool valid, Vector3 worldPosition) _screenPosToTerrainPos(Vector3 screenPosition) {
+  private (bool valid, Vector3 worldPosition) _screenPosToTerrainPos(
+    Vector3 screenPosition
+  )
+  {
     RaycastHit raycastHit;
     Ray ray = Camera.main.ScreenPointToRay(screenPosition);
     // check if click is a unit
-    if (Physics.Raycast(ray, out raycastHit, 1000f, Globals.TERRAIN_LAYER_MASK)) {
+    if (Physics.Raycast(ray, out raycastHit, 1000f, Globals.TERRAIN_LAYER_MASK))
+    {
       return (true, raycastHit.point);
     }
     return (false, Vector3.zero);
@@ -140,12 +137,19 @@ public class OrderHandler : MonoBehaviour {
   /// <summary>
   /// Draw box selection GUI as-needed
   /// </summary>
-  void OnGUI() {
-    if (_isDragging) {
+  void OnGUI()
+  {
+    if (_isDragging)
+    {
       var mousePosition = _screenPosToGuiPos(Input.mousePosition);
       var startPosition = _screenPosToGuiPos(_primaryMouseDownPosition);
 
-      var (topLeft, bottomRight) = GuiUtils.Square(mousePosition, startPosition, 2, _selectionBoxStyle);
+      var (topLeft, bottomRight) = GuiUtils.Square(
+        mousePosition,
+        startPosition,
+        2,
+        _selectionBoxStyle
+      );
 
       _topLeft = _guiPosToScreenPos(topLeft);
       _bottomRight = _guiPosToScreenPos(bottomRight);
@@ -169,62 +173,82 @@ public class OrderHandler : MonoBehaviour {
   /// </list>
   /// </para>
   /// </remarks>
-  void Update() {
+  void Update()
+  {
     _cullSelectedUnits();
 
     bool isMouseUpFrame = false;
-    if (Input.GetMouseButtonDown(0)) {
+    if (Input.GetMouseButtonDown(0))
+    {
       _primaryMouseDown = true;
       _primaryMouseDownPosition = Input.mousePosition;
       _primaryMouseDownTime = Time.time;
     }
-    if (Input.GetMouseButtonUp(0) && _primaryMouseDown) {
+    if (Input.GetMouseButtonUp(0) && _primaryMouseDown)
+    {
       isMouseUpFrame = true;
       _primaryMouseDown = false;
     }
     float timeSinceMouseDown = Time.time - _primaryMouseDownTime;
-    if (!_isDragging && _primaryMouseDown) {
+    if (!_isDragging && _primaryMouseDown)
+    {
       _isDragging =
-        (timeSinceMouseDown >= DraggingDelay) ||
-        ((Input.mousePosition - _primaryMouseDownPosition).magnitude >= DraggingDistance);
+        (Input.mousePosition - _primaryMouseDownPosition).magnitude
+        >= DraggingDistance;
     }
 
-    if (_isDragging) {
+    if (_isDragging)
+    {
       var topRightMousePos = new Vector2(_bottomRight.x, _topLeft.y);
       var bottomLeftMousePos = new Vector2(_topLeft.x, _bottomRight.y);
       var (validTopLeft, topLeft) = _screenPosToTerrainPos(_topLeft);
-      var (validBottomRight, bottomRight) = _screenPosToTerrainPos(_bottomRight);
+      var (validBottomRight, bottomRight) = _screenPosToTerrainPos(
+        _bottomRight
+      );
       var (validTopRight, topRight) = _screenPosToTerrainPos(topRightMousePos);
-      var (validBottomLeft, bottomLeft) = _screenPosToTerrainPos(bottomLeftMousePos);
+      var (validBottomLeft, bottomLeft) = _screenPosToTerrainPos(
+        bottomLeftMousePos
+      );
 
       Debug.DrawLine(topLeft, topRight, Color.red);
       Debug.DrawLine(topRight, bottomRight, Color.red);
       Debug.DrawLine(bottomRight, bottomLeft, Color.red);
       Debug.DrawLine(bottomLeft, topLeft, Color.red);
-      Debug.DrawLine(topLeft, Camera.main.ScreenToWorldPoint(_topLeft));
-      Debug.DrawLine(topRight, Camera.main.ScreenToWorldPoint(_topLeft));
+      Debug.DrawLine(topLeft, Camera.main.transform.position);
+      Debug.DrawLine(topRight, Camera.main.transform.position);
+      Debug.DrawLine(bottomRight, Camera.main.transform.position);
+      Debug.DrawLine(bottomLeft, Camera.main.transform.position);
 
-      Debug.DrawLine(bottomRight, Camera.main.ScreenToWorldPoint(_bottomRight));
-      Debug.DrawLine(bottomLeft, Camera.main.ScreenToWorldPoint(_bottomRight));
-
-      if (isMouseUpFrame) {
-
+      if (isMouseUpFrame)
+      {
         // TODO: create pyramid instead of point-face cuboidish thing
-        var selectionMesh = SelectionMeshFactory.GenerateFrustumSelectionMesh(new Vector3[] {
-          topLeft,
-          topRight,
-          bottomLeft,
-          bottomRight,
-          Camera.main.ScreenToWorldPoint(_topLeft),
-          Camera.main.ScreenToWorldPoint(topRightMousePos),
-          Camera.main.ScreenToWorldPoint(bottomLeftMousePos),
-          Camera.main.ScreenToWorldPoint(_bottomRight)
-      });
+        //   var selectionMesh = SelectionMeshFactory.GenerateFrustumSelectionMesh(new Vector3[] {
+        //     topLeft,
+        //     topRight,
+        //     bottomLeft,
+        //     bottomRight,
+        //     Camera.main.ScreenToWorldPoint(_topLeft),
+        //     Camera.main.ScreenToWorldPoint(topRightMousePos),
+        //     Camera.main.ScreenToWorldPoint(bottomLeftMousePos),
+        //     Camera.main.ScreenToWorldPoint(_bottomRight)
+        // });
+        var selectionMesh = SelectionMeshFactory.GeneratePyramidMesh(
+          new Vector3[]
+          {
+            bottomLeft,
+            topLeft,
+            topRight,
+            bottomRight,
+            Camera.main.transform.position
+          }
+        );
         var selectionObj = new GameObject();
         var del = selectionObj.AddComponent<OnTriggerDelegate>();
         bool cleared = false;
-        del.EnterDelegate = (other) => {
-          if (!cleared) {
+        del.EnterDelegate = (other) =>
+        {
+          if (!cleared)
+          {
             _deselectAll();
             cleared = true;
           }
@@ -241,36 +265,59 @@ public class OrderHandler : MonoBehaviour {
       }
     }
 
-
-
-    if (isMouseUpFrame && _isDragging) {
+    if (isMouseUpFrame && _isDragging)
+    {
       // onDragEnd
       // TODO
-    } else if (isMouseUpFrame && !_isDragging) {
+    }
+    else if (isMouseUpFrame && !_isDragging)
+    {
       // onClick
       RaycastHit raycastHit;
       Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-      if (Physics.Raycast(ray, out raycastHit)) {
+      if (Physics.Raycast(ray, out raycastHit))
+      {
         _deselectAll();
-        _addSelection(raycastHit.rigidbody.gameObject);
+        if (raycastHit.rigidbody)
+          _addSelection(raycastHit.rigidbody.gameObject);
       }
     }
 
-    if (isMouseUpFrame) {
+    if (isMouseUpFrame)
+    {
       _isDragging = false;
     }
 
-    if (Input.GetMouseButtonUp(1) && _selectedGameObjects.Count != 0) {
+    if (Input.GetMouseButtonUp(1) && _selectedGameObjects.Count != 0)
+    {
       RaycastHit raycastHit;
       Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
       // check if click is a unit
-      if (Physics.Raycast(ray, out raycastHit)) {
-        if (raycastHit.collider?.transform?.parent?.GetComponent<MovableUnit>() != null) {
+      if (Physics.Raycast(ray, out raycastHit))
+      {
+        if (
+          raycastHit.collider?.transform?.parent?.GetComponent<MovableUnit>()
+          != null
+        )
+        {
           var target = raycastHit.rigidbody.gameObject;
-          _selectedGameObjects.ForEach(gameObject => ArrowFactory.Spawn(gameObject, target));
-        } else if (Physics.Raycast(ray, out raycastHit, 1000f, Globals.TERRAIN_LAYER_MASK)) {
-          _selectedMovableUnits.ForEach(movableUnit => {
-            if (movableUnit != null) {
+          _selectedGameObjects.ForEach(
+            gameObject => ArrowFactory.Spawn(gameObject, target)
+          );
+        }
+        else if (
+          Physics.Raycast(
+            ray,
+            out raycastHit,
+            1000f,
+            Globals.TERRAIN_LAYER_MASK
+          )
+        )
+        {
+          _selectedMovableUnits.ForEach(movableUnit =>
+          {
+            if (movableUnit != null)
+            {
               movableUnit.MoveTo(raycastHit.point);
             }
           });
@@ -279,22 +326,29 @@ public class OrderHandler : MonoBehaviour {
     }
   }
 
-  private void _addSelection(GameObject gameObject) {
+  private void _addSelection(GameObject gameObject)
+  {
     _selectedGameObjects.Add(gameObject);
     var movableUnit = gameObject.GetComponent<MovableUnit>();
-    if (movableUnit != null) movableUnit.SelectionEnabled = true;
+    if (movableUnit != null)
+      movableUnit.SelectionEnabled = true;
     _selectedMovableUnits.Add(movableUnit);
   }
 
-  private void _deselectAll() {
-    _selectedMovableUnits.ForEach(movableUnit => { if (movableUnit != null) movableUnit.SelectionEnabled = false; });
+  private void _deselectAll()
+  {
+    _selectedMovableUnits.ForEach(movableUnit =>
+    {
+      if (movableUnit != null)
+        movableUnit.SelectionEnabled = false;
+    });
     _selectedGameObjects.Clear();
     _selectedMovableUnits.Clear();
   }
 
-  private void _cullSelectedUnits() {
+  private void _cullSelectedUnits()
+  {
     _selectedGameObjects.RemoveAll(go => go == null);
     _selectedMovableUnits.RemoveAll(go => go == null);
   }
 }
-
